@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏家族 - 家族历史</title>
+    <style>
+        body {
+            font-family: 'SimSun', serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4e9ce;
+            background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...');
+            background-repeat: repeat;
+            color: #5b4636;
+        }
+        
+        .header {
+            background-color: #5b4636;
+            color: #f4e9ce;
+            padding: 15px 0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f4e9ce;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .nav-menu li {
+            margin-left: 30px;
+        }
+        
+        .nav-menu a {
+            color: #f4e9ce;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-menu a:hover, .nav-menu a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .page-title {
+            text-align: center;
+            color: #5b4636;
+            font-size: 48px;
+            margin: 30px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: fadeInTitle 2s ease-in-out;
+            padding: 0 20px;
+        }
+        
+        .history-container {
+            max-width: 1000px;
+            margin: 0 auto 50px;
+            padding: 0 20px;
+        }
+        
+        .history-section {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .history-section h2 {
+            color: #5b4636;
+            border-bottom: 2px solid #5b4636;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        
+        .history-section p {
+            line-height: 1.8;
+            font-size: 16px;
+            text-indent: 2em;
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            background-color: #5b4636;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -1px;
+        }
+        
+        .timeline-item {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+            box-sizing: border-box;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #f4e9ce;
+            border: 4px solid #5b4636;
+            border-radius: 50%;
+            top: 15px;
+            z-index: 1;
+        }
+        
+        .left {
+            left: 0;
+        }
+        
+        .right {
+            left: 50%;
+        }
+        
+        .left::after {
+            right: -10px;
+        }
+        
+        .right::after {
+            left: -10px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .timeline-content h3 {
+            margin-top: 0;
+            color: #5b4636;
+        }
+        
+        .family-tree {
+            text-align: center;
+            margin: 40px 0;
+        }
+        
+        .family-tree img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer {
+            background-color: #5b4636;
+            color: #f4e9ce;
+            text-align: center;
+            padding: 20px;
+            margin-top: 50px;
+        }
+        
+        @media (max-width: 768px) {
+            .nav-container {
+                flex-direction: column;
+                padding: 10px;
+            }
+            
+            .logo {
+                margin-bottom: 10px;
+            }
+            
+            .nav-menu {
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .nav-menu li {
+                margin: 0;
+            }
+            
+            .page-title {
+                font-size: 36px;
+                margin: 20px 0;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-item {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-item::after {
+                left: 21px;
+            }
+            
+            .left::after, .right::after {
+                left: 21px;
+            }
+            
+            .right {
+                left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <a href="index.php" class="logo">
+                
+                陈氏家族
+            </a>
+            <ul class="nav-menu">
+                <li><a href="index.php">首页</a></li>
+                <li><a href="ls.html" class="active">家族历史</a></li>
+                <li><a href="zp2.php">关系图谱</a></li>
+                <li><a href="lt.html">家族论坛</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <h1 class="page-title">陈氏家族历史</h1>
+    
+    <div class="history-container">
+        <div class="history-section">
+            <h2>家族起源</h2>
+            <p>陈氏家族源远流长，据家谱记载，最早可追溯至春秋战国时期。先祖陈完，原为陈国公族，后因避祸迁居齐国，改姓田氏。至西汉时期，田氏后人恢复陈姓，定居于颍川郡（今河南许昌一带），成为当地望族。</p>
+            <p>东汉末年，陈氏家族因战乱南迁至江南地区。唐宋时期，家族逐渐发展壮大，涌现出多位进士及朝廷官员。明清时期，陈氏家族分支遍布全国各地，其中一支迁至福建沿海地区，成为当地重要的商业家族。</p>
+        </div>
+        
+        <div class="history-section">
+            <h2>家族迁徙</h2>
+            <div class="timeline">
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3>春秋战国</h3>
+                        <p>先祖陈完自陈国迁至齐国，改姓田氏</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h3>西汉时期</h3>
+                        <p>田氏后人恢复陈姓，定居颍川郡</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3>东汉末年</h3>
+                        <p>因战乱南迁至江南地区</p>
+                    </div>
+                </div>
+                <div class="timeline-item right">
+                    <div class="timeline-content">
+                        <h3>明清时期</h3>
+                        <p>分支迁至福建沿海，发展商业</p>
+                    </div>
+                </div>
+                <div class="timeline-item left">
+                    <div class="timeline-content">
+                        <h3>民国时期</h3>
+                        <p>部分族人迁往东南亚发展</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-section">
+            <h2>家族名人</h2>
+            <p>陈氏家族历史上人才辈出，在各个领域都有杰出代表：</p>
+            <ul>
+                <li><strong>陈寔</strong> - 东汉名士，以德行著称</li>
+                <li><strong>陈寿</strong> - 西晋著名史学家，著有《三国志》</li>
+                <li><strong>陈子昂</strong> - 唐代著名诗人，开创唐诗新风格</li>
+                <li><strong>陈亮</strong> - 南宋思想家，永康学派代表人物</li>
+                <li><strong>陈嘉庚</strong> - 近代著名爱国华侨领袖</li>
+            </ul>
+        </div>
+        
+        <div class="history-section">
+            <h2>家族家训</h2>
+            <p>陈氏家族历来重视家风建设，家训代代相传，主要内容包括：</p>
+            <blockquote>
+                <strong>“孝悌为先，诚信为本”</strong>
+            </blockquote>
+            <blockquote>
+                <strong>“勤俭持家，耕读传世”</strong>
+            </blockquote>
+            <blockquote>
+                <strong>“和睦邻里，济困扶危”</strong>
+            </blockquote>
+            <blockquote>
+                <strong>“忠厚传家，诗书继世；”</strong>
+            </blockquote>
+
+            <p>这些家训至今仍被家族成员奉为行为准则，影响着每一代陈氏后人。</p>
+        </div>
+        
+        <div class="history-section family-tree">
+            <h2>南张庄子陈氏家族</h2>
+            <p>夫家之有谱，犹國之有史也。家谱则一姓之纲纪以清，上而溯其渊源，寓绍先之志；而下续其繁衍，成后世之功论。
+
+不论少长，不论富贵，皆係祖宗之子孫。问尊卑而不问贵贱，虽支派流之亲疏有分，非欲其情之淡也；虽远近划一，特以严分而非欲其恩之薄也。
+
+是故，一以承先，一以裕后，一以辨名分，一以示和睦。家谱之重，亦綦重矣哉！</p>
+<p> 我陳氏家族，上世几代谱牒因故被焚，至今典籍翻阅不禁，心甚重之。故集本族长者口传述叙如后，供后人研考。
+
+夫水有源而不知其源之所在，木有本而不知其本之系存。如是，我寿至百年，富贵多金，虽仍若本人，亦不啻天地间一世之蜉蝣耳。明其宗族，说理道，遗愿启后，方能济人也。
+
+我陳氏家族，遠籍山西太原，后移文安縣西碼頭。陳族之裔，支派繁衍，譜志失传。所幸自远祖建基至清時，始由西碼头移至大邀舖居住，嗣后又移至靜邑西南二十五里南張家庄。
+
+惟溯我支始祖之派系，意不能編識其字氏。速后世更難追思親目，於是慨先人世系湮没。爰推基誌，謹將聚处本地者按支分列，各以次及，敬列譜先。其散居他乡者，未經明叙，不敢擅登。故所绍先，亦所以啟后也。
+
+更期少不凌长，尊不傲卑，勿以富而欺貧，勿以貴而制賤，勿以疏而不睦，勿以遠而不和。斯不失一体相传之谊也，不忝先人矣，豈非幸甚！</p>
+            
+           
+        </div>
+         <div class="history-section">
+            <h2>家族辈份排列暂定十二个字：</h2>
+            <p> <strong>  明 启 桂 玉 静 田 鳳 国 培 佳 继 昌 </strong></p>
+            <p>第輩份取名用号 否則無法排列輩份和名次 如輩份名次不列 無法登入譜冊 若出現名字重複 依長為準 幼者更之</p>
+             
+        </div>
+    </div>
+
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 陈氏家族 版权所有</p>
+    </footer>
+</body>
+</html>

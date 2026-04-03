@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏论坛</title>
+    <style>
+        :root {
+            --primary-color: #4285f4;
+            --secondary-color: #f1f3f4;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --white: #ffffff;
+            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --border-radius: 8px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: #f8f9fa;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 100%;
+            flex: 1;
+            padding: 20px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px 0;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--light-text);
+            font-size: 1rem;
+        }
+        
+        .forum-section {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .input-section {
+            background-color: var(--white);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        #username-input, #message-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #dfe1e5;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+        
+        #message-input {
+            height: 120px;
+            resize: vertical;
+        }
+        
+        #username-input:focus, #message-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3367d6;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        #forum-posts {
+            min-height: 100px;
+        }
+        
+        .post-item {
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: var(--secondary-color);
+            border-radius: var(--border-radius);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        .post-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .post-info {
+            flex: 1;
+        }
+        
+        .post-username {
+            font-weight: bold;
+            margin-bottom: 2px;
+            color: #d32f2f;
+        }
+        
+        .post-time {
+            font-size: 0.8rem;
+            color: var(--light-text);
+        }
+        
+        .post-content {
+            word-break: break-word;
+            padding-left: 46px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--light-text);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 15px;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .input-section, .forum-section {
+                padding: 15px;
+            }
+            
+            #message-input {
+                height: 100px;
+                padding: 12px;
+            }
+            
+            .btn {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>家族论坛</h1>
+            <p class="subtitle">陈家人专属讨论区</p>
+        </header>
+        
+        <main>
+            <div class="forum-section">
+                <h2 class="section-title">论坛帖子</h2>
+                <div id="forum-posts">
+                    <div class="empty-state">正在加载帖子...</div>
+                </div>
+            </div>
+            
+            <div class="input-section">
+                <input type="text" id="username-input" placeholder="您的昵称（必须以'陈'开头）">
+                <textarea id="message-input" placeholder="在这里输入您的发言..."></textarea>
+                <div class="button-group">
+                    <button id="send-btn" class="btn btn-primary">发表</button>
+                    <button id="refresh-btn" class="btn btn-secondary">刷新</button>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2025 陈氏论坛 </p>
+        </footer>
+    </div>
+    
+    <script>
+        // TXT文件路径
+        const TXT_FILE_PATH = 'forum_posts.txt';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const usernameInput = document.getElementById('username-input');
+            const messageInput = document.getElementById('message-input');
+            const sendBtn = document.getElementById('send-btn');
+            const refreshBtn = document.getElementById('refresh-btn');
+            const forumPostsContainer = document.getElementById('forum-posts');
+            
+            // 加载帖子
+            loadPosts();
+            
+            // 发送按钮点击事件
+            sendBtn.addEventListener('click', function() {
+                const username = usernameInput.value.trim();
+                const messageText = messageInput.value.trim();
+                
+                if (username && messageText) {
+                    // 检查昵称是否以"陈"开头
+                    if (!username.startsWith('陈')) {
+                        alert('昵称必须以"陈"开头！');
+                        return;
+                    }
+                    
+                    // 创建帖子对象
+                    const post = {
+                        username: username,
+                        text: messageText,
+                        time: new Date().toLocaleString(),
+                        id: Date.now()
+                    };
+                    
+                    // 添加到帖子列表
+                    addPost(post);
+                    
+                    // 清空消息输入框
+                    messageInput.value = '';
+                    
+                    // 保存到TXT文件
+                    savePostToTxt(post);
+                } else if (!username) {
+                    alert('请输入昵称');
+                } else if (!messageText) {
+                    alert('请输入发言内容');
+                }
+            });
+            
+            // 刷新按钮点击事件
+            refreshBtn.addEventListener('click', function() {
+                loadPosts();
+            });
+            
+            // 添加到帖子显示
+            function addPost(post) {
+                // 移除空状态提示
+                const emptyState = forumPostsContainer.querySelector('.empty-state');
+                if (emptyState) {
+                    emptyState.remove();
+                }
+                
+                const postItem = document.createElement('div');
+                postItem.className = 'post-item';
+                postItem.innerHTML = `
+                    <div class="post-header">
+                        <div class="user-avatar">${post.username.charAt(0)}</div>
+                        <div class="post-info">
+                            <div class="post-username">${post.username}</div>
+                            <div class="post-time">${post.time}</div>
+                        </div>
+                    </div>
+                    <div class="post-content">${post.text}</div>
+                `;
+                forumPostsContainer.prepend(postItem);
+            }
+            
+            // 保存帖子到TXT文件
+            function savePostToTxt(post) {
+                const postData = `${post.id}||${post.username}||${post.time}||${post.text}\n`;
+                
+                // 使用FormData和fetch发送数据到服务器
+                const formData = new FormData();
+                formData.append('post', postData);
+                formData.append('action', 'save');
+                
+                fetch('save_to_txt.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log('帖子已保存:', data);
+                })
+                .catch(error => {
+                    console.error('保存失败:', error);
+                    alert('帖子保存失败，请重试');
+                });
+            }
+            
+            // 从TXT文件加载帖子
+            function loadPosts() {
+                forumPostsContainer.innerHTML = '<div class="empty-state">正在加载帖子...</div>';
+                
+                fetch(`get_posts.php?file=${TXT_FILE_PATH}`)
+                .then(response => response.json())
+                .then(posts => {
+                    if (posts.length > 0) {
+                        forumPostsContainer.innerHTML = '';
+                        posts.forEach(post => {
+                            addPost(post);
+                        });
+                    } else {
+                        forumPostsContainer.innerHTML = '<div class="empty-state">暂无帖子，快来发表第一条吧！</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('加载失败:', error);
+                    forumPostsContainer.innerHTML = '<div class="empty-state">加载帖子失败，请刷新重试</div>';
+                });
+            }
+            
+            // 按Enter键也可以发送 (Shift+Enter换行)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

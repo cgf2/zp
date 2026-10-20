@@ -1165,7 +1165,5 @@ window.familyData = [
 
 // 论坛初始帖子（用于 localStorage 为空时的初始化）
 window.forumPostData = [
-    { id: '1775224252614', username: '陈星', time: '2026/4/3 21:50:52', text: '哈哈哈哈哈哈哈' },
-    { id: '1775224261341', username: '陈星', time: '2026/4/3 21:51:01', text: 'V计划就' },
-    { id: '1775224269303', username: '陈星', time: '2026/4/3 21:51:09', text: '抚养人谢谢' }
+   
 ];

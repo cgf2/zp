@@ -4,396 +4,287 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>陈氏论坛</title>
+    <link rel="stylesheet" href="common.css">
     <style>
-        :root {
-            --primary-color: #4285f4;
-            --secondary-color: #f1f3f4;
-            --text-color: #202124;
-            --light-text: #5f6368;
-            --white: #ffffff;
-            --shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
-            --border-radius: 8px;
+        .forum-wrap {
+            max-width: 800px;
+            margin: 30px auto 40px;
+            padding: 0 24px;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
-            line-height: 1.6;
-            color: var(--text-color);
-            background-color: #f8f9fa;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 100%;
-            flex: 1;
-            padding: 20px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        header {
+
+        .forum-title-sub {
             text-align: center;
-            margin-bottom: 25px;
-            padding: 20px 0;
-        }
-        
-        h1 {
-            color: var(--primary-color);
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: var(--light-text);
-            font-size: 1rem;
-        }
-        
-        .forum-section {
-            background-color: var(--white);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+            color: var(--color-text-soft);
+            font-size: 14px;
+            margin-top: -10px;
             margin-bottom: 20px;
-            flex: 1;
-            overflow-y: auto;
         }
-        
-        .input-section {
-            background-color: var(--white);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
+
+        .forum-card {
+            background: var(--color-card);
+            border-radius: var(--radius-md);
+            padding: 22px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 20px;
+            border: 1px solid rgba(91, 70, 54, 0.08);
         }
-        
-        #username-input, #message-input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #dfe1e5;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            transition: border 0.3s;
-        }
-        
-        #message-input {
-            height: 120px;
-            resize: vertical;
-        }
-        
-        #username-input:focus, #message-input:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        .button-group {
+
+        .forum-card h3 {
+            font-size: 17px;
+            color: var(--color-primary);
+            margin-bottom: 14px;
             display: flex;
-            gap: 10px;
+            align-items: center;
+            gap: 8px;
         }
-        
+        .forum-card h3::before {
+            content: '';
+            width: 4px; height: 16px;
+            background: var(--color-gold);
+            border-radius: 2px;
+        }
+
+        .input-row { margin-bottom: 14px; }
+        .input-row label { display: block; font-size: 13px; color: var(--color-text-soft); margin-bottom: 6px; }
+
+        .forum-input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(91, 70, 54, 0.2);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: var(--font-serif);
+            transition: all 0.25s;
+        }
+        .forum-input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.15);
+        }
+        #message-input { height: 110px; resize: vertical; }
+
+        .btn-row { display: flex; gap: 10px; }
         .btn {
             flex: 1;
-            padding: 12px;
+            padding: 11px;
             border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 500;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-family: var(--font-serif);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
-        
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #3367d6;
-        }
-        
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-        
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
-        }
-        
+        .btn-primary { background: var(--color-primary); color: var(--color-bg); }
+        .btn-primary:hover { background: var(--color-accent); transform: translateY(-1px); }
+        .btn-secondary { background: var(--color-bg-light); color: var(--color-primary); border: 1px solid rgba(91, 70, 54, 0.2); }
+        .btn-secondary:hover { background: var(--color-gold); color: var(--color-bg); }
+
         .section-title {
-            font-size: 1.2rem;
-            margin-bottom: 15px;
-            color: var(--text-color);
+            font-size: 17px;
+            color: var(--color-primary);
+            margin-bottom: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        
-        #forum-posts {
-            min-height: 100px;
-        }
-        
+
+        .post-list { display: flex; flex-direction: column; gap: 14px; }
+
         .post-item {
-            padding: 15px;
-            margin-bottom: 15px;
-            background-color: var(--secondary-color);
-            border-radius: var(--border-radius);
-            position: relative;
-            animation: fadeIn 0.3s ease-in-out;
+            padding: 16px 18px;
+            background: var(--color-bg-light);
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(91, 70, 54, 0.08);
+            animation: fadeIn 0.4s ease-out;
         }
-        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .post-header {
             display: flex;
             align-items: center;
             margin-bottom: 10px;
+            gap: 10px;
         }
-        
-        .user-avatar {
-            width: 36px;
-            height: 36px;
+        .avatar {
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
+            background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+            color: var(--color-bg);
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 18px;
             font-weight: bold;
-            margin-right: 10px;
+            flex-shrink: 0;
         }
-        
-        .post-info {
-            flex: 1;
-        }
-        
-        .post-username {
-            font-weight: bold;
-            margin-bottom: 2px;
-            color: #d32f2f;
-        }
-        
-        .post-time {
-            font-size: 0.8rem;
-            color: var(--light-text);
-        }
-        
+        .post-meta { flex: 1; }
+        .post-name { font-weight: 600; color: var(--color-primary); font-size: 15px; }
+        .post-time { font-size: 12px; color: var(--color-text-soft); }
         .post-content {
+            padding-left: 50px;
+            color: var(--color-text);
+            line-height: 1.7;
+            font-size: 15px;
+            white-space: pre-wrap;
             word-break: break-word;
-            padding-left: 46px;
         }
-        
+
         .empty-state {
             text-align: center;
-            padding: 40px 20px;
-            color: var(--light-text);
+            padding: 50px 20px;
+            color: var(--color-text-soft);
         }
-        
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            padding: 15px;
-            color: var(--light-text);
-            font-size: 0.9rem;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
+        .empty-state .emoji { font-size: 48px; margin-bottom: 12px; }
+        .empty-state p { font-size: 15px; }
+
         @media (max-width: 480px) {
-            .container {
-                padding: 15px;
-            }
-            
-            h1 {
-                font-size: 1.5rem;
-            }
-            
-            .input-section, .forum-section {
-                padding: 15px;
-            }
-            
-            #message-input {
-                height: 100px;
-                padding: 12px;
-            }
-            
-            .btn {
-                padding: 10px;
-                font-size: 0.9rem;
-            }
+            .forum-card { padding: 16px; }
+            .post-content { padding-left: 0; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>家族论坛</h1>
-            <p class="subtitle">陈家人专属讨论区</p>
-        </header>
-        
-        <main>
-            <div class="forum-section">
-                <h2 class="section-title">论坛帖子</h2>
-                <div id="forum-posts">
-                    <div class="empty-state">正在加载帖子...</div>
-                </div>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">陈氏家族</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="ls.html">家族历史</a></li>
+                <li><a href="zp.html">关系图谱</a></li>
+                <li><a href="lt.html" class="active">家族论坛</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <h1 class="page-title">陈氏家族论坛</h1>
+    <p class="forum-title-sub">陈家人的专属讨论区</p>
+
+    <div class="forum-wrap">
+        <div class="forum-card">
+            <h3>发表新帖</h3>
+            <div class="input-row">
+                <label>您的昵称（必须以"陈"开头）</label>
+                <input type="text" id="username-input" class="forum-input" placeholder="如：陈老三">
             </div>
-            
-            <div class="input-section">
-                <input type="text" id="username-input" placeholder="您的昵称（必须以'陈'开头）">
-                <textarea id="message-input" placeholder="在这里输入您的发言..."></textarea>
-                <div class="button-group">
-                    <button id="send-btn" class="btn btn-primary">发表</button>
-                    <button id="refresh-btn" class="btn btn-secondary">刷新</button>
-                </div>
+            <div class="input-row">
+                <label>发言内容</label>
+                <textarea id="message-input" class="forum-input" placeholder="在这里输入您的发言...（Enter 发送，Shift+Enter 换行）"></textarea>
             </div>
-        </main>
-        
-        <footer>
-            <p>© 2025 陈氏论坛 </p>
-        </footer>
+            <div class="btn-row">
+                <button id="send-btn" class="btn btn-primary">发表</button>
+                <button id="refresh-btn" class="btn btn-secondary">刷新帖子</button>
+            </div>
+        </div>
+
+        <div class="forum-card">
+            <div class="section-title">
+                <span>💬 论坛帖子 <small id="postCount" style="color:var(--color-text-soft);font-weight:normal;"></small></span>
+            </div>
+            <div id="postList" class="post-list"><div class="empty-state"><div class="emoji">📝</div><p>正在加载帖子...</p></div></div>
+        </div>
     </div>
-    
+
+    <footer class="footer">
+        <p>&copy; 2025 陈氏家族 版权所有</p>
+    </footer>
+
+    <script src="data.js"></script>
     <script>
-        // TXT文件路径
-        const TXT_FILE_PATH = 'forum_posts.txt';
-        
+        const KEY = 'chen_forum_posts';
         document.addEventListener('DOMContentLoaded', function() {
-            const usernameInput = document.getElementById('username-input');
-            const messageInput = document.getElementById('message-input');
-            const sendBtn = document.getElementById('send-btn');
-            const refreshBtn = document.getElementById('refresh-btn');
-            const forumPostsContainer = document.getElementById('forum-posts');
-            
-            // 加载帖子
+            const nameIn = document.getElementById('username-input');
+            const msgIn = document.getElementById('message-input');
+            const send = document.getElementById('send-btn');
+            const refresh = document.getElementById('refresh-btn');
+            const list = document.getElementById('postList');
+
             loadPosts();
-            
-            // 发送按钮点击事件
-            sendBtn.addEventListener('click', function() {
-                const username = usernameInput.value.trim();
-                const messageText = messageInput.value.trim();
-                
-                if (username && messageText) {
-                    // 检查昵称是否以"陈"开头
-                    if (!username.startsWith('陈')) {
-                        alert('昵称必须以"陈"开头！');
-                        return;
-                    }
-                    
-                    // 创建帖子对象
-                    const post = {
-                        username: username,
-                        text: messageText,
-                        time: new Date().toLocaleString(),
-                        id: Date.now()
-                    };
-                    
-                    // 添加到帖子列表
-                    addPost(post);
-                    
-                    // 清空消息输入框
-                    messageInput.value = '';
-                    
-                    // 保存到TXT文件
-                    savePostToTxt(post);
-                } else if (!username) {
-                    alert('请输入昵称');
-                } else if (!messageText) {
-                    alert('请输入发言内容');
-                }
+
+            send.addEventListener('click', function() {
+                const name = nameIn.value.trim();
+                const text = msgIn.value.trim();
+                if (!name) { alert('请输入昵称'); return; }
+                if (!text) { alert('请输入发言内容'); return; }
+                if (!name.startsWith('陈')) { alert('昵称必须以"陈"开头！'); return; }
+
+                const post = { username: name, text, time: new Date().toLocaleString(), id: Date.now() };
+                renderPost(post, true);
+                msgIn.value = '';
+                savePost(post);
             });
-            
-            // 刷新按钮点击事件
-            refreshBtn.addEventListener('click', function() {
-                loadPosts();
+
+            refresh.addEventListener('click', loadPosts);
+
+            msgIn.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send.click(); }
             });
-            
-            // 添加到帖子显示
-            function addPost(post) {
-                // 移除空状态提示
-                const emptyState = forumPostsContainer.querySelector('.empty-state');
-                if (emptyState) {
-                    emptyState.remove();
-                }
-                
-                const postItem = document.createElement('div');
-                postItem.className = 'post-item';
-                postItem.innerHTML = `
-                    <div class="post-header">
-                        <div class="user-avatar">${post.username.charAt(0)}</div>
-                        <div class="post-info">
-                            <div class="post-username">${post.username}</div>
-                            <div class="post-time">${post.time}</div>
-                        </div>
-                    </div>
-                    <div class="post-content">${post.text}</div>
-                `;
-                forumPostsContainer.prepend(postItem);
+
+            function renderPost(post, prepend) {
+                const empty = list.querySelector('.empty-state');
+                if (empty) empty.remove();
+                const item = document.createElement('div');
+                item.className = 'post-item';
+                item.innerHTML =
+                    '<div class="post-header">' +
+                        '<div class="avatar">' + post.username.charAt(0) + '</div>' +
+                        '<div class="post-meta">' +
+                            '<div class="post-name">' + escapeHtml(post.username) + '</div>' +
+                            '<div class="post-time">' + post.time + '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="post-content">' + escapeHtml(post.text) + '</div>';
+                if (prepend) list.prepend(item); else list.appendChild(item);
+                updateCount();
             }
-            
-            // 保存帖子到TXT文件
-            function savePostToTxt(post) {
-                const postData = `${post.id}||${post.username}||${post.time}||${post.text}\n`;
-                
-                // 使用FormData和fetch发送数据到服务器
-                const formData = new FormData();
-                formData.append('post', postData);
-                formData.append('action', 'save');
-                
-                fetch('save_to_txt.php', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.text())
-                .then(data => {
-                    console.log('帖子已保存:', data);
-                })
-                .catch(error => {
-                    console.error('保存失败:', error);
-                    alert('帖子保存失败，请重试');
-                });
+
+            function savePost(post) {
+                let posts = [];
+                try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
+                posts.push(post);
+                localStorage.setItem(KEY, JSON.stringify(posts));
             }
-            
-            // 从TXT文件加载帖子
+
             function loadPosts() {
-                forumPostsContainer.innerHTML = '<div class="empty-state">正在加载帖子...</div>';
-                
-                fetch(`get_posts.php?file=${TXT_FILE_PATH}`)
-                .then(response => response.json())
-                .then(posts => {
-                    if (posts.length > 0) {
-                        forumPostsContainer.innerHTML = '';
-                        posts.forEach(post => {
-                            addPost(post);
-                        });
-                    } else {
-                        forumPostsContainer.innerHTML = '<div class="empty-state">暂无帖子，快来发表第一条吧！</div>';
+                list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>正在加载帖子...</p></div>';
+                let posts = [];
+                try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
+
+                if (posts.length === 0) {
+                    // 直接使用内联的初始论坛数据，支持双击 file:// 打开
+                    if (typeof forumPostData !== 'undefined' && forumPostData.length > 0) {
+                        posts = forumPostData;
+                        localStorage.setItem(KEY, JSON.stringify(posts));
                     }
-                })
-                .catch(error => {
-                    console.error('加载失败:', error);
-                    forumPostsContainer.innerHTML = '<div class="empty-state">加载帖子失败，请刷新重试</div>';
-                });
-            }
-            
-            // 按Enter键也可以发送 (Shift+Enter换行)
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    sendBtn.click();
+                    showPosts(posts);
+                } else {
+                    showPosts(posts);
                 }
-            });
+            }
+
+            function showPosts(posts) {
+                if (posts.length === 0) {
+                    list.innerHTML = '<div class="empty-state"><div class="emoji">🌱</div><p>暂无帖子，快来发表第一条吧！</p></div>';
+                    return;
+                }
+                list.innerHTML = '';
+                posts.forEach(p => renderPost(p, false));
+                updateCount();
+            }
+
+            function updateCount() {
+                const c = list.querySelectorAll('.post-item').length;
+                document.getElementById('postCount').textContent = c ? '（共 ' + c + ' 条）' : '';
+            }
+
+            function escapeHtml(s) {
+                if (s === null || s === undefined) return '';
+                return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
         });
     </script>
 </body>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏家族成员详情</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .detail-wrap {
+            max-width: 800px;
+            margin: 30px auto 40px;
+            padding: 0 24px;
+        }
+
+        .detail-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 32px;
+            border: 1px solid rgba(91, 70, 54, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-gold), var(--color-primary));
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 16px;
+            transition: color 0.2s;
+        }
+
+        .back-btn:hover { color: var(--color-accent); }
+
+        .detail-header {
+            display: flex;
+            gap: 28px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .avatar-area {
+            flex-shrink: 0;
+        }
+
+        .avatar-photo {
+            width: 140px;
+            height: 180px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-bg);
+            font-size: 56px;
+            font-weight: bold;
+        }
+
+        .avatar-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .info-area {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .info-area h2 {
+            font-size: 34px;
+            color: var(--color-primary);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .info-badges {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .badge {
+            padding: 3px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge-gen { background: var(--color-primary); color: var(--color-bg); }
+        .badge-zodiac { background: var(--color-gold); color: var(--color-primary); }
+        .badge-age-alive { background: #2e7d32; color: white; }
+        .badge-age-dead { background: var(--color-text-soft); color: white; }
+
+        .info-item {
+            display: flex;
+            margin-bottom: 6px;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .info-label {
+            width: 80px;
+            color: var(--color-text-soft);
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: var(--color-text);
+            flex: 1;
+            white-space: pre-wrap;
+        }
+
+        .info-value a {
+            color: var(--color-accent);
+            text-decoration: none;
+            border-bottom: 1px dashed transparent;
+            transition: border 0.2s;
+        }
+
+        .info-value a:hover { border-bottom-color: var(--color-accent); }
+
+        .relation-section {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px dashed rgba(91, 70, 54, 0.25);
+        }
+
+        .relation-title {
+            font-size: 16px;
+            color: var(--color-primary);
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .relation-title::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: var(--color-gold);
+            border-radius: 2px;
+        }
+
+        .relation-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .relation-list li {
+            display: inline-block;
+        }
+
+        .relation-list a {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            background: var(--color-bg-light);
+            border: 1px solid rgba(91, 70, 54, 0.15);
+            border-radius: 20px;
+            color: var(--color-primary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .relation-list a:hover {
+            background: var(--color-primary);
+            color: var(--color-bg);
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        .relation-order {
+            color: var(--color-accent);
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .big-rank-link {
+            display: inline-block;
+            padding: 6px 16px;
+            background: linear-gradient(135deg, var(--color-gold), var(--color-accent));
+            color: var(--color-bg);
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-left: 10px;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .big-rank-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        @media (max-width: 600px) {
+            .detail-card { padding: 20px; }
+            .detail-header { flex-direction: column; align-items: center; text-align: center; }
+            .avatar-photo { width: 120px; height: 150px; font-size: 44px; }
+            .info-badges { justify-content: center; }
+            .info-item { flex-direction: column; }
+            .info-label { width: auto; margin-bottom: 2px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">陈氏家族</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="ls.html">家族历史</a></li>
+                <li><a href="zp.html">关系图谱</a></li>
+                <li><a href="lt.html">家族论坛</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="detail-wrap">
+        <a href="index.html" class="back-btn">&larr; 返回成员列表</a>
+        <div id="detailCard" class="detail-card">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 陈氏家族 版权所有</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>
+        function getParam(n) { const p = new URLSearchParams(window.location.search); return p.get(n); }
+        const id = parseInt(getParam('id'));
+        const zodiacAnimals = ["鼠", "牛", "虎", "兔", "龙", "蛇", "马", "羊", "猴", "鸡", "狗", "猪"];
+
+        // 直接使用内联数据，支持双击 file:// 打开
+        (function() {
+            const data = familyData;
+            const m = data.find(x => x.ID === id);
+            if (!m) { document.getElementById('detailCard').innerHTML = '<div class="loading">未找到该成员（ID: ' + id + '）</div>'; return; }
+            renderDetail(m, data);
+        })();
+
+        function h(s) { if (s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function renderDetail(m, all) {
+            const card = document.getElementById('detailCard');
+            const name = m['姓名'], img = m['图片'], birthYear = m['出生年份'], birthday = m['生日'] || '';
+            const deathYear = m['终年'], spouse = m['配偶'] || '', daughter = m['女儿'] || '', contact = m['联系方式'] || '';
+            const fxid = m['父亲ID'], gen = m['代数'];
+
+            let ageLabel, ageVal, ageClass;
+            if (!deathYear || deathYear === 0) {
+                ageLabel = '年龄';
+                ageVal = (new Date().getFullYear() - birthYear + 1) + ' 岁';
+                ageClass = 'badge-age-alive';
+            } else {
+                ageLabel = '终年';
+                ageVal = (deathYear - birthYear + 1) + ' 岁';
+                ageClass = 'badge-age-dead';
+            }
+            const zodiacIdx = ((birthYear - 1300) % 12 + 12) % 12;
+            const zodiacAnimal = zodiacAnimals[zodiacIdx];
+            const initial = name ? name.charAt(0) : '?';
+
+            let html = '<div class="detail-header"><div class="avatar-area"><div class="avatar-photo">';
+            html += img ? '<img src="' + h(img) + '" alt="' + h(name) + '">' : initial;
+            html += '</div></div><div class="info-area">';
+            html += '<h2>' + h(name) + '</h2>';
+            html += '<div class="info-badges">';
+            if (gen) html += '<span class="badge badge-gen">第 ' + gen + ' 代</span>';
+            html += '<span class="badge ' + ageClass + '">' + ageLabel + ' ' + ageVal + '</span>';
+            html += '<span class="badge badge-zodiac">生肖 ' + zodiacAnimal + '</span>';
+            html += '</div>';
+            html += '<div class="info-item"><div class="info-label">出生年份</div><div class="info-value">' + birthYear + ' 年</div></div>';
+            html += birthday ? '<div class="info-item"><div class="info-label">生日</div><div class="info-value">' + h(birthday) + '</div></div>' : '';
+            html += '<div class="info-item"><div class="info-label">' + ageLabel + '</div><div class="info-value">' + ageVal + '</div></div>';
+            html += contact ? '<div class="info-item"><div class="info-label">联系方式</div><div class="info-value">' + h(contact) + '</div></div>' : '';
+            html += spouse ? '<div class="info-item"><div class="info-label">配偶</div><div class="info-value">' + h(spouse) + '</div></div>' : '';
+            html += daughter ? '<div class="info-item"><div class="info-label">女儿</div><div class="info-value">' + h(daughter) + '</div></div>' : '';
+            html += '</div></div>';
+
+            // 父亲
+            const father = all.find(x => x.ID === fxid);
+            html += '<div class="relation-section"><div class="relation-title">父亲</div><div class="info-value">';
+            if (father) html += '<a href="cgf2.html?id=' + father.ID + '">' + h(father['姓名']) + '</a>';
+            else html += '未知';
+            html += '</div></div>';
+
+            // 兄弟
+            const brothers = all.filter(x => x['父亲ID'] === fxid).sort((a, b) => (a['出生年份'] || 0) - (b['出生年份'] || 0));
+            if (brothers.length > 0) {
+                html += '<div class="relation-section"><div class="relation-title">兄弟 <a href="cgf3.html?id=' + m.ID + '" class="big-rank-link">查看大排行 &rarr;</a></div><ul class="relation-list">';
+                const order = ["老大","老二","老三","老四","老五","老六","老七","老八","老九","老十"];
+                brothers.forEach((b, i) => {
+                    html += '<li><a href="cgf2.html?id=' + b.ID + '"><span class="relation-order">' + order[i] + '</span>' + h(b['姓名']) + '</a></li>';
+                });
+                html += '</ul></div>';
+            }
+
+            // 儿子
+            const sons = all.filter(x => x['父亲ID'] === m.ID).sort((a, b) => (a['出生年份'] || 0) - (b['出生年份'] || 0));
+            if (sons.length > 0) {
+                html += '<div class="relation-section"><div class="relation-title">儿子</div><ul class="relation-list">';
+                const sorder = ["长子","次子","三子","四子","五子","六子","七子","八子","九子","十子"];
+                sons.forEach((s, i) => {
+                    html += '<li><a href="cgf2.html?id=' + s.ID + '"><span class="relation-order">' + sorder[i] + '</span>' + h(s['姓名']) + '</a></li>';
+                });
+                html += '</ul></div>';
+            }
+
+            // 孙辈
+            const grands = [];
+            sons.forEach(s => {
+                const gs = all.filter(x => x['父亲ID'] === s.ID);
+                gs.forEach(g => { grands.push({ father: s['姓名'], ...g }); });
+            });
+            if (grands.length > 0) {
+                html += '<div class="relation-section"><div class="relation-title">孙辈</div><ul class="relation-list">';
+                grands.forEach(g => {
+                    html += '<li><a href="cgf2.html?id=' + g.ID + '">' + h(g['姓名']) + '<span class="relation-order">（' + h(g.father) + '之子）</span></a></li>';
+                });
+                html += '</ul></div>';
+            }
+
+            card.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

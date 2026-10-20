@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏家族关系图谱 - 竖版</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .page-title { margin: 24px auto 0; }
+
+        .toolbar {
+            max-width: 1200px;
+            margin: 16px auto;
+            padding: 0 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .toolbar input {
+            padding: 10px 18px;
+            border: 1px solid rgba(91, 70, 54, 0.3);
+            border-radius: 24px;
+            width: 260px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            font-family: var(--font-serif);
+        }
+        .toolbar input:focus {
+            outline: none;
+            border-color: var(--color-accent);
+            box-shadow: 0 0 0 3px rgba(160, 82, 45, 0.15);
+        }
+        .toolbar button {
+            padding: 10px 22px;
+            background: var(--color-primary);
+            color: var(--color-bg);
+            border: none;
+            border-radius: 24px;
+            font-size: 15px;
+            cursor: pointer;
+            font-family: var(--font-serif);
+        }
+        .toolbar button:hover { background: var(--color-accent); }
+
+        .view-switch {
+            display: flex;
+            gap: 6px;
+            background: var(--color-bg-light);
+            padding: 4px;
+            border-radius: 20px;
+            border: 1px solid rgba(91, 70, 54, 0.15);
+        }
+        .view-switch a {
+            padding: 6px 14px;
+            text-decoration: none;
+            color: var(--color-text-soft);
+            border-radius: 16px;
+            font-size: 13px;
+        }
+        .view-switch a.active { background: var(--color-primary); color: var(--color-bg); }
+
+        .tree-scroll { max-width: 100%; overflow-x: auto; padding: 10px 24px 30px; -webkit-overflow-scrolling: touch; }
+
+        .family-tree { display: inline-block; width: 100%; text-align: center; }
+
+        .member-node {
+            display: inline-block;
+            vertical-align: top;
+            text-align: center;
+            margin: 0 3px;
+            position: relative;
+            padding-top: 18px;
+        }
+
+        .member-card {
+            background: var(--color-card);
+            border-radius: 4px;
+            box-shadow: var(--shadow-sm);
+            padding: 4px 6px;
+            font-size: 13px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid rgba(91, 70, 54, 0.12);
+            display: inline-block;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 0;
+            line-height: 1.2;
+            white-space: nowrap;
+            min-height: 60px;
+            height: 60px;
+            min-width: 32px;
+            width: 32px;
+            color: var(--color-primary);
+            font-weight: 500;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .member-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background: var(--color-card-hover);
+        }
+        .member-card.gen-1 { background: linear-gradient(135deg, #fff9e6, #ffe9b8); border-color: var(--color-gold); font-weight: bold; }
+        .member-card.highlight {
+            background: linear-gradient(135deg, #fff176, #ffb74d) !important;
+            box-shadow: 0 0 16px rgba(255, 193, 7, 0.6) !important;
+            font-weight: bold;
+        }
+
+        .vertical-connector {
+            position: absolute;
+            width: 0; height: 12px;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            z-index: 1;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 8px solid var(--color-primary-light);
+        }
+        .horizontal-connector {
+            position: absolute;
+            height: 1.2px;
+            background: var(--color-primary-light);
+            top: 12px;
+            z-index: 1;
+        }
+        .children-container { display: flex; justify-content: center; position: relative; padding-top: 15px; margin-top: 2px; }
+        .sibling-group { display: flex; position: relative; justify-content: center; flex-wrap: nowrap; }
+
+        @media (max-width: 768px) {
+            .member-card { font-size: 12px; padding: 3px 5px; min-height: 46px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">陈氏家族</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="ls.html">家族历史</a></li>
+                <li><a href="zp.html">关系图谱</a></li>
+                <li><a href="lt.html">家族论坛</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <h1 class="page-title">陈氏家族关系图谱（竖版）</h1>
+
+    <div class="toolbar">
+        <div class="view-switch">
+            <a href="zp.html">横版</a>
+            <a href="zp2.html" class="active">竖版</a>
+        </div>
+        <input type="text" id="searchInput" placeholder="🔍 输入姓名搜索">
+        <button id="searchBtn">搜索</button>
+    </div>
+
+    <div class="tree-scroll">
+        <div class="family-tree" id="familyTree"><div class="loading">加载中...</div></div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 陈氏家族 版权所有</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>
+        (function() {
+            const data = familyData;
+            const tree = buildTree(data); render(tree);
+        })();
+
+        function buildTree(data) {
+            const m = {}; data.forEach(x => { m[x.ID] = { ...x, children: [] }; });
+            const tree = [];
+            Object.values(m).forEach(x => {
+                if (!x['父亲ID'] || !m[x['父亲ID']]) tree.push(x);
+                else m[x['父亲ID']].children.push(x);
+            });
+            return tree;
+        }
+
+        function esc(s) { if (s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function renderNode(n, lv) {
+            const hasC = n.children && n.children.length > 0;
+            const multi = hasC && n.children.length > 1;
+            let h = '<div class="member-node">';
+            if (lv > 0) h += '<div class="vertical-connector"></div>';
+            h += '<div class="member-card gen-' + (n['代数'] || 0) + '" data-id="' + n.ID + '" data-name="' + esc(n['姓名']) + '">' + esc(n['姓名']) + '</div>';
+            if (hasC) {
+                h += '<div class="children-container">';
+                if (multi) h += '<div class="horizontal-connector"></div>';
+                h += '<div class="sibling-group">';
+                n.children.forEach(c => h += renderNode(c, lv + 1));
+                h += '</div></div>';
+            }
+            h += '</div>';
+            return h;
+        }
+
+        function render(tree) {
+            const el = document.getElementById('familyTree');
+            el.innerHTML = tree.map(r => renderNode(r, 0)).join('');
+            document.querySelectorAll('.member-card').forEach(c => {
+                c.addEventListener('click', () => location.href = 'cgf2.html?id=' + c.dataset.id);
+            });
+            window.addEventListener('load', adj);
+            window.addEventListener('resize', adj);
+            setTimeout(adj, 100);
+        }
+
+        function adj() {
+            document.querySelectorAll('.children-container').forEach(cc => {
+                const sg = cc.querySelector('.sibling-group');
+                const conn = cc.querySelector('.horizontal-connector');
+                if (!sg || !conn || sg.children.length <= 1) return;
+                const fc = sg.firstElementChild, lc = sg.lastElementChild;
+                const fr = fc.getBoundingClientRect(), lr = lc.getBoundingClientRect(), cr = cc.getBoundingClientRect();
+                const startX = fr.left + fr.width/2 - cr.left;
+                const endX = lr.left + lr.width/2 - cr.left;
+                conn.style.left = startX + 'px';
+                conn.style.width = (endX - startX) + 'px';
+            });
+        }
+
+        document.getElementById('searchBtn').addEventListener('click', search);
+        document.getElementById('searchInput').addEventListener('keyup', e => { if (e.key === 'Enter') search(); });
+        function search() {
+            const t = document.getElementById('searchInput').value.trim().toLowerCase();
+            document.querySelectorAll('.highlight').forEach(el => el.classList.remove('highlight'));
+            if (!t) return;
+            const matches = Array.from(document.querySelectorAll('.member-card')).filter(c => c.dataset.name.toLowerCase().includes(t));
+            if (matches.length === 0) { alert('未找到匹配成员'); return; }
+            matches.forEach(m => m.classList.add('highlight'));
+            matches[0].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    </script>
+</body>
+</html>

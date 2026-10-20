@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>陈氏家族 - 大排行</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .rank-wrap {
+            max-width: 800px;
+            margin: 30px auto 40px;
+            padding: 0 24px;
+        }
+        .rank-card {
+            background: var(--color-card);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            padding: 28px 32px;
+            border: 1px solid rgba(91, 70, 54, 0.08);
+        }
+        .rank-card h2 {
+            font-size: 24px;
+            color: var(--color-primary);
+            margin-bottom: 6px;
+        }
+        .rank-subtitle {
+            color: var(--color-text-soft);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .rank-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .rank-item:hover {
+            background: var(--color-bg-light);
+            transform: translateX(4px);
+            box-shadow: var(--shadow-sm);
+        }
+        .rank-idx {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--color-primary-light), var(--color-accent));
+            color: var(--color-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: bold;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(160, 82, 45, 0.3);
+        }
+        .rank-item:nth-child(even) .rank-idx {
+            background: linear-gradient(135deg, var(--color-gold), #b8862a);
+        }
+        .rank-info {
+            margin-left: 16px;
+            flex: 1;
+        }
+        .rank-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+        .rank-meta {
+            font-size: 12px;
+            color: var(--color-text-soft);
+            margin-top: 2px;
+        }
+        .rank-current {
+            border: 2px solid var(--color-gold);
+            background: linear-gradient(135deg, #fff9e6, #fff3cc);
+        }
+        .rank-current .rank-name::after {
+            content: ' 👈 当前';
+            color: var(--color-accent);
+            font-size: 13px;
+        }
+        .section-label {
+            font-size: 14px;
+            color: var(--color-accent);
+            margin: 20px 0 10px;
+            padding-left: 10px;
+            border-left: 3px solid var(--color-gold);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">陈氏家族</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="ls.html">家族历史</a></li>
+                <li><a href="zp.html">关系图谱</a></li>
+                <li><a href="lt.html">家族论坛</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="rank-wrap">
+        <a href="index.html" class="back-btn">&larr; 返回成员列表</a>
+        <div id="rankCard" class="rank-card"><div class="loading">加载中...</div></div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 陈氏家族 版权所有</p>
+    </footer>
+
+    <script src="data.js"></script>
+    <script>
+        function getParam(n) { const p = new URLSearchParams(window.location.search); return p.get(n); }
+        const id = parseInt(getParam('id'));
+
+        // 直接使用内联数据，支持双击 file:// 打开
+        (function() {
+            const data = familyData;
+            const m = data.find(x => x.ID === id);
+            if (!m) { document.getElementById('rankCard').innerHTML = '<div class="loading">未找到该成员</div>'; return; }
+            renderRank(m, data);
+        })();
+
+        function h(s) { if (s === null || s === undefined) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+        function renderRank(m, all) {
+            const card = document.getElementById('rankCard');
+            const father = all.find(x => x.ID === m['父亲ID']);
+            const grandfather = father ? all.find(x => x.ID === father['父亲ID']) : null;
+
+            let html = '<h2>' + h(m['姓名']) + ' 的排行</h2>';
+            const path = [];
+            if (grandfather) path.push('<a href="cgf2.html?id=' + grandfather.ID + '">' + h(grandfather['姓名']) + '</a>（曾祖）');
+            if (father) path.push('<a href="cgf2.html?id=' + father.ID + '">' + h(father['姓名']) + '</a>（祖父）');
+            html += '<div class="rank-subtitle">辈分链：' + (path.length ? path.join(' &rarr; ') + ' &rarr; ' : '') + '<strong>' + h(m['姓名']) + '</strong></div>';
+
+            // 同父兄弟
+            const brothers = all.filter(x => x['父亲ID'] === m['父亲ID']).sort((a, b) => (a['出生年份'] || 0) - (b['出生年份'] || 0));
+            if (brothers.length > 0) {
+                html += '<div class="section-label">亲兄弟排行</div>';
+                html += '<div style="display:flex;flex-direction:column;">';
+                const order = ["老大","老二","老三","老四","老五","老六","老七","老八","老九","老十","老十一","老十二"];
+                brothers.forEach((b, i) => {
+                    const isCurrent = b.ID === m.ID;
+                    html += '<a href="cgf2.html?id=' + b.ID + '" class="rank-item' + (isCurrent ? ' rank-current' : '') + '">' +
+                        '<div class="rank-idx">' + order[i] + '</div>' +
+                        '<div class="rank-info">' +
+                            '<div class="rank-name">' + h(b['姓名']) + '</div>' +
+                            '<div class="rank-meta">' + (b['出生年份'] ? b['出生年份'] + '年' : '') + (b['代数'] ? ' · 第' + b['代数'] + '代' : '') + '</div>' +
+                        '</div></a>';
+                });
+                html += '</div>';
+            }
+
+            // 大排行（祖父下所有儿子的儿子）
+            if (grandfather) {
+                const grandUncles = all.filter(x => x['父亲ID'] === grandfather.ID);
+                let grandRanking = [];
+                grandUncles.forEach(gu => {
+                    const sons = all.filter(x => x['父亲ID'] === gu.ID);
+                    sons.forEach(s => { grandRanking.push({...s, parentName: gu['姓名']}); });
+                });
+                grandRanking.sort((a, b) => (a['出生年份'] || 0) - (b['出生年份'] || 0));
+
+                if (grandRanking.length > 1) {
+                    html += '<div class="section-label">堂兄弟大排行（共 ' + grandRanking.length + ' 人）</div>';
+                    html += '<div style="display:flex;flex-direction:column;">';
+                    const borderder = ["老大","老二","老三","老四","老五","老六","老七","老八","老九","老十","老十一","老十二","老十三","老十四","老十五","老十六","老十七","老十八","老十九","老二十"];
+                    grandRanking.forEach((b, i) => {
+                        const isCurrent = b.ID === m.ID;
+                        html += '<a href="cgf2.html?id=' + b.ID + '" class="rank-item' + (isCurrent ? ' rank-current' : '') + '">' +
+                            '<div class="rank-idx">' + borderder[i] + '</div>' +
+                            '<div class="rank-info">' +
+                                '<div class="rank-name">' + h(b['姓名']) + '</div>' +
+                                '<div class="rank-meta">父：' + h(b.parentName) + (b['出生年份'] ? ' · ' + b['出生年份'] + '年' : '') + '</div>' +
+                            '</div></a>';
+                    });
+                    html += '</div>';
+                }
+            }
+
+            card.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

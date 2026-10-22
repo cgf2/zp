@@ -242,28 +242,71 @@
                 updateCount();
             }
 
-            function savePost(post) {
-                let posts = [];
-                try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
-                posts.push(post);
-                localStorage.setItem(KEY, JSON.stringify(posts));
+            // === 后端同步 API ===
+            const API_BASE = '';  // 用相对路径，通过 server.js 访问时自动命中 /api/posts
+            const API = {
+                async list() {
+                    try {
+                        const r = await fetch(API_BASE + '/api/posts', { cache: 'no-cache' });
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        const data = await r.json();
+                        if (Array.isArray(data)) return { ok: true, data };
+                        return { ok: false };
+                    } catch (e) {
+                        return { ok: false };
+                    }
+                },
+                async create(post) {
+                    try {
+                        const r = await fetch(API_BASE + '/api/posts', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(post)
+                        });
+                        if (!r.ok) throw new Error('HTTP ' + r.status);
+                        return { ok: true };
+                    } catch (e) {
+                        return { ok: false };
+                    }
+                }
+            };
+
+            // === 核心函数 ===
+            async function savePost(post) {
+                // 优先发后端，失败时本地缓存
+                const res = await API.create(post);
+                if (!res.ok) {
+                    // 后端不可用：仍然保存到 localStorage 作为离线缓存
+                    let posts = [];
+                    try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
+                    posts.push(post);
+                    localStorage.setItem(KEY, JSON.stringify(posts));
+                }
             }
 
-            function loadPosts() {
+            async function loadPosts() {
                 list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>正在加载帖子...</p></div>';
+
+                // 优先从后端拉（跨设备同步）
+                const apiRes = await API.list();
+                if (apiRes.ok && apiRes.data.length > 0) {
+                    localStorage.setItem(KEY, JSON.stringify(apiRes.data));
+                    showPosts(apiRes.data);
+                    return;
+                }
+
+                // 后端不可用或为空：本地 localStorage
                 let posts = [];
                 try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
 
                 if (posts.length === 0) {
-                    // 直接使用内联的初始论坛数据，支持双击 file:// 打开
+                    // 彻底没有数据时，用初始种子数据
                     if (typeof forumPostData !== 'undefined' && forumPostData.length > 0) {
                         posts = forumPostData;
                         localStorage.setItem(KEY, JSON.stringify(posts));
                     }
-                    showPosts(posts);
-                } else {
-                    showPosts(posts);
                 }
+                showPosts(posts);
             }
 
             function showPosts(posts) {

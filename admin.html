@@ -36,6 +36,19 @@
         }
         .gate-card input:focus { outline: none; border-color: var(--color-accent); }
 
+        /* === 论坛帖子列表 === */
+        .post-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 11px 12px; border-bottom: 1px solid rgba(91,70,54,0.08);
+            font-size: 14px;
+        }
+        .post-row:last-child { border-bottom: none; }
+        .post-row .p-name { width: 90px; color: var(--color-primary); font-weight: 500; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .post-row .p-text { flex: 1; color: var(--color-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .post-row .p-time { width: 130px; color: var(--color-text-soft); font-size: 12px; flex-shrink: 0; }
+        .post-row .p-del { width: 56px; background: transparent; color: #dc3545; border: 1px solid #dc3545; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-family: inherit; flex-shrink: 0; }
+        .post-row .p-del:hover { background: #dc3545; color: #fff; }
+
         /* === 拖拽上传区 === */
         .dropzone {
             border: 2px dashed rgba(91,70,54,0.3);
@@ -133,6 +146,10 @@
             .admin-wrap { padding: 16px; }
             .section { padding: 20px 16px; }
             .gate-card { padding: 30px 24px; }
+            .post-row { flex-wrap: wrap; }
+            .post-row .p-name { width: 70px; }
+            .post-row .p-time { width: auto; }
+            .post-row .p-text { flex: 1 1 100%; order: 3; white-space: normal; }
         }
     </style>
 </head>
@@ -205,6 +222,24 @@
                 </div>
             </div>
 
+            <!-- ========== 论坛消息管理 ========== -->
+            <div class="section">
+                <h2>② 论坛消息管理 <small id="forumStatus">加载中...</small></h2>
+
+                <div class="btn-row">
+                    <button class="btn secondary" id="btnRefreshForum">🔄 刷新帖子列表</button>
+                    <button class="btn" id="btnClearForum" style="background:#dc3545;">🗑️ 清空全部帖子</button>
+                </div>
+
+                <div id="forumList" style="margin-top:14px;">
+                    <div style="color:var(--color-text-soft); text-align:center; padding:24px;">加载中...</div>
+                </div>
+
+                <div class="note">
+                    <b>📌 说明：</b>此区块直接管理云端（JSONBin.io）的论坛帖子。在这里删除或清空后，<b>所有设备</b>（手机/电脑）刷新论坛页面都会同步生效。
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -235,6 +270,7 @@
             gateSection.style.display = 'none';
             mainSection.style.display = 'block';
             toast('解锁成功', 'ok');
+            loadForum();  // 解锁后加载云端帖子
         } else {
             document.getElementById('pwdErr').style.display = 'block';
             pwdInput.value = '';
@@ -245,6 +281,94 @@
     document.getElementById('btnUnlock').onclick = tryUnlock;
     pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
     pwdInput.focus();
+
+    // ========== 论坛消息管理（JSONBin.io 云端）==========
+    const FORUM_CONFIG = {
+        BIN_ID: '6adb1295ac6210605a4b33a6',
+        API_KEY: '$2a$10$vFgU8uYQfgz.lK1TRDJa7uN1uv9sRP5KqglKm4ZJ.4lj3JX9P09Mi'
+    };
+    const FORUM_URL = 'https://api.jsonbin.io/v3/b/' + FORUM_CONFIG.BIN_ID;
+    let forumCache = [];
+
+    async function forumFetch() {
+        const r = await fetch(FORUM_URL + '/latest', {
+            headers: { 'X-Master-Key': FORUM_CONFIG.API_KEY },
+            cache: 'no-cache'
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const json = await r.json();
+        return Array.isArray(json.record) ? json.record : [];
+    }
+
+    async function forumSave(arr) {
+        const r = await fetch(FORUM_URL, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': FORUM_CONFIG.API_KEY },
+            body: JSON.stringify(arr)
+        });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+    }
+
+    async function loadForum() {
+        const box = document.getElementById('forumList');
+        const status = document.getElementById('forumStatus');
+        box.innerHTML = '<div style="color:var(--color-text-soft); text-align:center; padding:24px;">加载中...</div>';
+        try {
+            forumCache = await forumFetch();
+            status.textContent = '✓ 已连接云端（共 ' + forumCache.length + ' 条）';
+            status.style.color = '#28a745';
+            renderForum();
+        } catch (e) {
+            status.textContent = '✗ 云端连接失败（' + e.message + '）';
+            status.style.color = '#dc3545';
+            box.innerHTML = '<div style="color:#dc3545; text-align:center; padding:24px;">无法连接 JSONBin.io，请检查网络或配置</div>';
+        }
+    }
+
+    function renderForum() {
+        const box = document.getElementById('forumList');
+        if (forumCache.length === 0) {
+            box.innerHTML = '<div style="color:var(--color-text-soft); text-align:center; padding:24px;">云端暂无帖子</div>';
+            return;
+        }
+        box.innerHTML = forumCache.map(p => `
+            <div class="post-row">
+                <div class="p-name">${esc(p.username)}</div>
+                <div class="p-text" title="${esc(p.text)}">${esc(p.text)}</div>
+                <div class="p-time">${esc(p.time || '')}</div>
+                <button class="p-del" data-id="${esc(p.id || '')}">删除</button>
+            </div>
+        `).join('');
+        box.querySelectorAll('.p-del').forEach(btn => {
+            btn.onclick = async () => {
+                if (!confirm('确定删除这条帖子？所有设备都会同步删除。')) return;
+                btn.disabled = true;
+                try {
+                    forumCache = forumCache.filter(p => String(p.id) !== btn.dataset.id);
+                    await forumSave(forumCache);
+                    toast('已删除并同步到云端', 'ok');
+                    renderForum();
+                } catch (e) {
+                    toast('删除失败: ' + e.message, 'err');
+                    btn.disabled = false;
+                    loadForum();
+                }
+            };
+        });
+    }
+
+    document.getElementById('btnRefreshForum').onclick = () => { loadForum(); toast('已刷新', 'info'); };
+    document.getElementById('btnClearForum').onclick = async () => {
+        if (forumCache.length === 0) { toast('云端本来就是空的', 'info'); return; }
+        if (!confirm('确定清空全部 ' + forumCache.length + ' 条帖子？此操作不可恢复，所有设备同步生效！')) return;
+        try {
+            await forumSave([]);
+            toast('已清空全部帖子', 'ok');
+            loadForum();
+        } catch (e) {
+            toast('清空失败: ' + e.message, 'err');
+        }
+    };
 
     // ========== 文件上传 ==========
     const dz = document.getElementById('dropzone');

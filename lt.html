@@ -242,26 +242,52 @@
                 updateCount();
             }
 
-            // === 后端同步 API ===
-            const API_BASE = '';  // 用相对路径，通过 server.js 访问时自动命中 /api/posts
+            // === JSONBin.io 跨设备同步配置 ===
+            // 📌 使用步骤（3 分钟搞定）：
+            // 1. 打开 https://jsonbin.io 注册免费账号（支持 Google 登录）
+            // 2. 登录后进入 Dashboard → 点 "Create Bin" → Name 填 chen-family-forum → 内容填 [] （一对中括号）→ Create
+            // 3. 在刚创建的 Bin 上点进去，复制浏览器地址栏里的 Bin ID（24 位字符）
+            // 4. 左侧菜单 "API Keys" → 复制 "X-Master-Key"
+            // 5. 把下面两个值填好，重新上传 lt.html 到网站空间即可
+            const JSONBIN_CONFIG = {
+                BIN_ID: '6adb06cd1d04ca511c01705f',        // 例如: '67abc123def4567890abcdef'
+                API_KEY: '$2a$10$vFgU8uYQfgz.lK1TRDJa7uN1uv9sRP5KqglKm4ZJ.4lj3JX9P09Mi'        // 例如: '$2a$10$abc...'（X-Master-Key）
+            };
+            const JSONBIN_URL = 'https://api.jsonbin.io/v3/b/';
+            const JSONBIN_ENABLED = !!(JSONBIN_CONFIG.BIN_ID && JSONBIN_CONFIG.API_KEY);
+
             const API = {
                 async list() {
+                    if (!JSONBIN_ENABLED) return { ok: false };
                     try {
-                        const r = await fetch(API_BASE + '/api/posts', { cache: 'no-cache' });
+                        const r = await fetch(JSONBIN_URL + JSONBIN_CONFIG.BIN_ID + '/latest', {
+                            headers: { 'X-Master-Key': JSONBIN_CONFIG.API_KEY },
+                            cache: 'no-cache'
+                        });
                         if (!r.ok) throw new Error('HTTP ' + r.status);
-                        const data = await r.json();
-                        if (Array.isArray(data)) return { ok: true, data };
+                        const json = await r.json();
+                        // JSONBin 返回 {record: [...], metadata: {...}}
+                        const arr = json && json.record;
+                        if (Array.isArray(arr)) return { ok: true, data: arr };
                         return { ok: false };
                     } catch (e) {
                         return { ok: false };
                     }
                 },
                 async create(post) {
+                    if (!JSONBIN_ENABLED) return { ok: false };
                     try {
-                        const r = await fetch(API_BASE + '/api/posts', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(post)
+                        // JSONBin 是整体覆盖，要先读再写
+                        const listRes = await this.list();
+                        const arr = listRes.ok ? listRes.data : [];
+                        arr.push(post);
+                        const r = await fetch(JSONBIN_URL + JSONBIN_CONFIG.BIN_ID, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Master-Key': JSONBIN_CONFIG.API_KEY
+                            },
+                            body: JSON.stringify(arr)
                         });
                         if (!r.ok) throw new Error('HTTP ' + r.status);
                         return { ok: true };
@@ -272,15 +298,38 @@
             };
 
             // === 核心函数 ===
+            // 页面加载时根据配置显示同步状态
+            (function showSyncStatus() {
+                const list = document.getElementById('postList');
+                if (!list) return;
+                const tip = document.createElement('div');
+                tip.style.cssText = 'font-size:12px;color:var(--color-text-soft);text-align:center;padding:6px 0;margin-bottom:8px;border-bottom:1px dashed rgba(91,70,54,0.15);';
+                if (JSONBIN_ENABLED) {
+                    tip.textContent = '🌐 跨设备同步已开启（JSONBin.io）';
+                    tip.style.color = '#28a745';
+                } else {
+                    tip.textContent = '📴 当前是单机模式（帖子只保存在本设备），配置 JSONBin.io 后可跨设备同步';
+                }
+                list.parentNode.insertBefore(tip, list);
+            })();
+
             async function savePost(post) {
-                // 优先发后端，失败时本地缓存
+                // 优先发云端（JSONBin），失败时本地缓存
                 const res = await API.create(post);
                 if (!res.ok) {
-                    // 后端不可用：仍然保存到 localStorage 作为离线缓存
+                    // 云端不可用：仍然保存到 localStorage 作为离线缓存
                     let posts = [];
                     try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
                     posts.push(post);
                     localStorage.setItem(KEY, JSON.stringify(posts));
+                    // 提示用户帖子只保存在本机
+                    setTimeout(() => {
+                        const warn = document.createElement('div');
+                        warn.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#ff9800;color:#fff;padding:10px 20px;border-radius:6px;font-size:13px;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+                        warn.textContent = '⚠️ 帖子已保存到本机（云端同步失败），其他设备暂时看不到';
+                        document.body.appendChild(warn);
+                        setTimeout(() => warn.remove(), 3000);
+                    }, 100);
                 }
             }
 

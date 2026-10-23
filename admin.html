@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据更新工具 - 陈氏家族</title>
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .admin-wrap { max-width: 860px; margin: 0 auto; padding: 30px 24px 60px; }
+        .section {
+            background: var(--color-card);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            padding: 28px 30px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(91,70,54,0.08);
+        }
+        .section h2 {
+            font-size: 19px; color: var(--color-primary); margin-bottom: 16px;
+            padding-bottom: 10px; border-bottom: 1px solid rgba(91,70,54,0.12);
+        }
+        .section h2 small { font-size: 13px; color: var(--color-text-soft); font-weight: normal; margin-left: 8px; }
+
+        /* === 密码门 === */
+        .gate { text-align: center; padding: 60px 20px; }
+        .gate-card {
+            display: inline-block; background: var(--color-card);
+            padding: 40px 50px; border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+        }
+        .gate-card .lock { font-size: 42px; margin-bottom: 12px; }
+        .gate-card input {
+            display: block; width: 220px; margin: 14px auto; padding: 10px 14px;
+            border: 1.5px solid rgba(91,70,54,0.2); border-radius: var(--radius-sm);
+            font-size: 15px; font-family: inherit; text-align: center; letter-spacing: 2px;
+        }
+        .gate-card input:focus { outline: none; border-color: var(--color-accent); }
+
+        /* === 拖拽上传区 === */
+        .dropzone {
+            border: 2px dashed rgba(91,70,54,0.3);
+            border-radius: var(--radius-md);
+            padding: 44px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255,255,255,0.4);
+        }
+        .dropzone:hover, .dropzone.drag {
+            border-color: var(--color-accent);
+            background: rgba(255,255,255,0.75);
+        }
+        .dropzone .icon { font-size: 44px; margin-bottom: 10px; }
+        .dropzone .hint { color: var(--color-text-soft); font-size: 13px; margin-top: 6px; }
+        .dropzone .hint b { color: var(--color-accent); }
+        .dropzone input { display: none; }
+
+        .preview {
+            margin-top: 16px;
+            background: rgba(91,70,54,0.04);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            border: 1px solid rgba(91,70,54,0.08);
+            font-family: "Consolas","Monaco",monospace;
+            font-size: 13px;
+            max-height: 200px;
+            overflow-y: auto;
+            line-height: 1.6;
+        }
+        .preview .ok { color: #28a745; }
+        .preview .err { color: #dc3545; }
+        .preview .k { color: var(--color-accent); }
+
+        .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+        .btn {
+            background: var(--color-primary); color: #fff; border: none;
+            padding: 11px 24px; border-radius: var(--radius-sm); cursor: pointer;
+            font-size: 14px; font-family: inherit; font-weight: 500;
+            transition: all 0.18s; box-shadow: var(--shadow-sm);
+        }
+        .btn:hover:not(:disabled) { background: var(--color-accent); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn.secondary { background: rgba(91,70,54,0.12); color: var(--color-primary); }
+        .btn.secondary:hover:not(:disabled) { background: rgba(91,70,54,0.2); }
+        .btn.success { background: #28a745; font-size: 15px; padding: 12px 30px; }
+        .btn.success:hover:not(:disabled) { background: #218838; }
+
+        .step-flow {
+            display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .step {
+            flex: 1; min-width: 110px;
+            background: rgba(91,70,54,0.06); padding: 10px 14px;
+            border-radius: var(--radius-sm); font-size: 13px;
+            color: var(--color-text-soft); border: 1px solid transparent;
+        }
+        .step.active {
+            background: rgba(160,82,45,0.12); color: var(--color-accent);
+            border-color: var(--color-accent); font-weight: 600;
+        }
+        .step.done { background: rgba(40,167,69,0.1); color: #28a745; border-color: #28a745; }
+
+        .note {
+            background: rgba(160,82,45,0.08); border-left: 3px solid var(--color-accent);
+            padding: 12px 16px; border-radius: 4px; margin-top: 16px;
+            font-size: 13px; color: var(--color-text-soft); line-height: 1.7;
+        }
+        .note b { color: var(--color-accent); }
+        .note code {
+            background: rgba(91,70,54,0.1); padding: 1px 6px; border-radius: 3px;
+            font-family: Consolas, monospace; font-size: 12px;
+        }
+
+        .file-meta {
+            margin-top: 14px; padding: 12px 16px;
+            background: rgba(255,255,255,0.6); border-radius: var(--radius-sm);
+            border: 1px solid rgba(91,70,54,0.1); font-size: 13px;
+        }
+        .file-meta b { color: var(--color-primary); }
+
+        .toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-120%);
+            padding: 12px 24px; border-radius: var(--radius-sm);
+            color: #fff; font-size: 14px; box-shadow: var(--shadow-lg);
+            z-index: 9999; transition: transform 0.3s; font-family: inherit;
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); }
+        .toast.ok { background: #28a745; }
+        .toast.err { background: #dc3545; }
+        .toast.info { background: var(--color-primary); }
+
+        @media (max-width: 600px) {
+            .admin-wrap { padding: 16px; }
+            .section { padding: 20px 16px; }
+            .gate-card { padding: 30px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-inner">
+            <a href="index.html" class="nav-logo">陈氏家族</a>
+            <ul class="nav-menu">
+                <li><a href="index.html">首页</a></li>
+                <li><a href="zp.html">关系图谱</a></li>
+                <li><a href="lt.html">家族论坛</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="admin-wrap">
+        <h1 class="page-title">🛠️ 数据更新工具</h1>
+
+        <!-- ========== 密码门 ========== -->
+        <div class="section gate" id="gateSection">
+            <div class="gate-card">
+                <div class="lock">🔐</div>
+                <div style="color:var(--color-primary); font-size:16px; margin-bottom:6px;">需要管理员密码</div>
+                <div style="color:var(--color-text-soft); font-size:13px;">此页面用于更新家族数据，需要密码才能继续</div>
+                <input type="password" id="pwdInput" placeholder="请输入密码" autocomplete="off">
+                <button class="btn" id="btnUnlock" style="width:220px;">解锁</button>
+                <div id="pwdErr" style="color:#dc3545; font-size:13px; margin-top:10px; display:none;">密码错误</div>
+            </div>
+        </div>
+
+        <!-- ========== 主界面（解锁后显示）========== -->
+        <div id="mainSection" style="display:none;">
+
+            <div class="section">
+                <div class="step-flow">
+                    <div class="step" id="step1">1️⃣ 选择 zp.json</div>
+                    <div class="step" id="step2">2️⃣ 校验数据</div>
+                    <div class="step" id="step3">3️⃣ 下载新 data.js</div>
+                    <div class="step" id="step4">4️⃣ 上传覆盖</div>
+                </div>
+
+                <h2>① 上传 zp.json <small>新的家族数据文件</small></h2>
+                <div class="dropzone" id="dropzone">
+                    <div class="icon">📂</div>
+                    <div><b>点击选择</b> 或 <b>拖拽</b> zp.json 到此处</div>
+                    <div class="hint">JSON 数组，每项至少要有 <b>ID</b> 和 <b>姓名</b> 字段</div>
+                    <input type="file" id="fileInput" accept=".json,application/json">
+                </div>
+
+                <div class="file-meta" id="fileMeta" style="display:none;">
+                    📄 文件: <b id="fileName"></b> &nbsp;|&nbsp;
+                    大小: <b id="fileSize"></b> &nbsp;|&nbsp;
+                    记录数: <b id="fileCount"></b>
+                </div>
+
+                <div class="preview" id="previewBox" style="display:none;"></div>
+
+                <div class="btn-row">
+                    <button class="btn success" id="btnGenerate" disabled>⬇️ 生成并下载新 data.js</button>
+                    <button class="btn secondary" id="btnReset">🔄 重新选择</button>
+                </div>
+
+                <div class="note">
+                    <b>💡 使用说明：</b><br>
+                    1. 选择一份符合格式的 <code>zp.json</code> 文件（JSON 数组）<br>
+                    2. 工具会自动校验并显示预览（代数分布、前 3 条数据）<br>
+                    3. 点击「生成并下载新 data.js」→ 浏览器会下载一个 <code>data.js</code> 文件<br>
+                    4. <b>把下载的 data.js 上传到网站空间，覆盖原有的 data.js</b>，刷新网页即可看到新数据<br>
+                    <b>⚠️</b> 此工具完全在浏览器里运行，不会上传任何文件到服务器，所有数据保留在您本机
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer"><p>&copy; 2025 陈氏家族 版权所有</p></div>
+    <div class="toast" id="toast"></div>
+
+<script src="data.js"></script>
+<script>
+(function() {
+    const PWD = 'cgf';  // 管理密码
+
+    const toastEl = document.getElementById('toast');
+    function toast(msg, type) {
+        toastEl.textContent = msg;
+        toastEl.className = 'toast show ' + (type || 'info');
+        setTimeout(() => toastEl.classList.remove('show'), 2400);
+    }
+
+    function esc(s) { return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // ========== 密码门 ==========
+    const pwdInput = document.getElementById('pwdInput');
+    const gateSection = document.getElementById('gateSection');
+    const mainSection = document.getElementById('mainSection');
+
+    function tryUnlock() {
+        if (pwdInput.value === PWD) {
+            gateSection.style.display = 'none';
+            mainSection.style.display = 'block';
+            toast('解锁成功', 'ok');
+        } else {
+            document.getElementById('pwdErr').style.display = 'block';
+            pwdInput.value = '';
+            pwdInput.focus();
+            setTimeout(() => document.getElementById('pwdErr').style.display = 'none', 1800);
+        }
+    }
+    document.getElementById('btnUnlock').onclick = tryUnlock;
+    pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryUnlock(); });
+    pwdInput.focus();
+
+    // ========== 文件上传 ==========
+    const dz = document.getElementById('dropzone');
+    const fi = document.getElementById('fileInput');
+    const stepEls = [1,2,3,4].map(i => document.getElementById('step'+i));
+    let parsedData = null;
+    let forumData = null;  // 从已加载的 data.js 里读 window.forumPostData
+
+    // 页面已加载 data.js，可以直接拿到现有 forumPostData 用于保留
+    if (typeof window.forumPostData !== 'undefined') {
+        forumData = window.forumPostData;
+    }
+
+    dz.addEventListener('click', () => fi.click());
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag'); });
+    dz.addEventListener('dragleave', () => dz.classList.remove('drag'));
+    dz.addEventListener('drop', e => {
+        e.preventDefault(); dz.classList.remove('drag');
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+    fi.addEventListener('change', () => { if (fi.files.length) handleFile(fi.files[0]); });
+
+    function setStep(n) {
+        stepEls.forEach((el, idx) => {
+            el.classList.remove('active', 'done');
+            if (idx + 1 < n) el.classList.add('done');
+            else if (idx + 1 === n) el.classList.add('active');
+        });
+    }
+    setStep(1);
+
+    function handleFile(file) {
+        if (!file.name.toLowerCase().endsWith('.json')) {
+            toast('请选择 .json 文件', 'err'); return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (!Array.isArray(data)) throw new Error('JSON 顶层必须是数组');
+                parsedData = data;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = (file.size/1024).toFixed(1) + ' KB';
+                document.getElementById('fileCount').textContent = data.length;
+                document.getElementById('fileMeta').style.display = 'block';
+                renderPreview(data);
+                setStep(2);
+                toast('已读取 ' + data.length + ' 条记录', 'ok');
+            } catch(err) {
+                toast('解析失败: ' + err.message, 'err');
+            }
+        };
+        reader.readAsText(file, 'utf-8');
+    }
+
+    function renderPreview(arr) {
+        const box = document.getElementById('previewBox');
+        const idOk = arr.every(x => typeof x.ID !== 'undefined');
+        const nameOk = arr.every(x => x['姓名']);
+        const gens = {};
+        arr.forEach(x => { const g = x['代数']; if (g != null) gens[g] = (gens[g]||0)+1; });
+        const genText = Object.entries(gens).sort((a,b)=>a[0]-b[0]).map(([k,v])=>`第${k}代×${v}`).join('，');
+
+        const checks = [
+            `<span class="${idOk?'ok':'err'}">${idOk?'✓':'✗'}</span> 所有项有 ID`,
+            `<span class="${nameOk?'ok':'err'}">${nameOk?'✓':'✗'}</span> 所有项有 姓名`,
+            arr.length > 0 ? '<span class="ok">✓</span> 数组非空' : '<span class="err">✗</span> 数组为空',
+        ].join('&nbsp; | &nbsp;');
+
+        const first3 = arr.slice(0, 3).map(x =>
+            `{ ID:${x.ID||''}, 姓名:"${esc(x['姓名']||'')}"${x['代数']?', 代数:'+x['代数']:''} }`
+        ).join(', ');
+
+        box.innerHTML = `
+            <div>${checks}</div>
+            <div style="margin-top:8px;">📊 代数分布: <span class="k">${genText || '（无代数字段）'}</span></div>
+            <div style="margin-top:8px;">📝 前 3 条: <span class="k">[</span> ${first3} <span class="k">]</span></div>
+            ${!idOk || !nameOk ? '<div style="margin-top:10px;" class="err">⚠️ 存在字段缺失，无法生成</div>' : '<div style="margin-top:10px;" class="ok">✅ 校验通过，可以生成新 data.js</div>'}
+        `;
+        box.style.display = 'block';
+        document.getElementById('btnGenerate').disabled = !idOk || !nameOk;
+        if (idOk && nameOk) setStep(3);
+    }
+
+    document.getElementById('btnReset').onclick = () => {
+        parsedData = null;
+        fi.value = '';
+        document.getElementById('fileMeta').style.display = 'none';
+        document.getElementById('previewBox').style.display = 'none';
+        document.getElementById('btnGenerate').disabled = true;
+        setStep(1);
+    };
+
+    document.getElementById('btnGenerate').onclick = () => {
+        if (!parsedData) return;
+
+        // 生成新的 data.js 内容
+        let content = 'window.familyData = ' + JSON.stringify(parsedData, null, 2) + ';\n\n';
+        if (forumData && forumData.length > 0) {
+            content += 'window.forumPostData = ' + JSON.stringify(forumData, null, 2) + ';\n';
+        } else {
+            content += 'window.forumPostData = [];\n';
+        }
+
+        // 触发浏览器下载
+        const blob = new Blob([content], { type: 'application/javascript;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.js';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        setStep(4);
+        toast('已下载 data.js（' + parsedData.length + ' 条）', 'ok');
+        setTimeout(() => {
+            alert('✅ data.js 已下载！\n\n下一步：\n1. 找到下载的 data.js 文件\n2. 上传到您的网站空间，覆盖原有的 data.js\n3. 刷新网页（Ctrl+F5）即可看到新数据');
+        }, 300);
+    };
+})();
+</script>
+</body>
+</html>

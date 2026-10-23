@@ -297,14 +297,18 @@
         });
         if (!r.ok) throw new Error('HTTP ' + r.status);
         const json = await r.json();
-        return Array.isArray(json.record) ? json.record : [];
+        const arr = Array.isArray(json.record) ? json.record : [];
+        // 过滤掉占位符（JSONBin 不允许 Bin 内容为空数组，空时用占位符填充）
+        return arr.filter(p => p && !p._placeholder);
     }
 
     async function forumSave(arr) {
+        // JSONBin 不接受空数组（Bin cannot be blank），空时写入占位符
+        const body = (arr.length === 0) ? [{ _placeholder: true }] : arr;
         const r = await fetch(FORUM_URL, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-Master-Key': FORUM_CONFIG.API_KEY },
-            body: JSON.stringify(arr)
+            body: JSON.stringify(body)
         });
         if (!r.ok) throw new Error('HTTP ' + r.status);
     }

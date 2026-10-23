@@ -203,7 +203,8 @@
             const refresh = document.getElementById('refresh-btn');
             const list = document.getElementById('postList');
 
-            loadPosts();
+            // 注意：loadPosts() 不能在这里调用——const API 在下方才初始化（TDZ），
+            // 统一移到本回调末尾（所有定义之后）再调用
 
             send.addEventListener('click', function() {
                 const name = nameIn.value.trim();
@@ -267,7 +268,8 @@
                         if (!r.ok) throw new Error('HTTP ' + r.status);
                         const json = await r.json();
                         // JSONBin 返回 {record: [...], metadata: {...}}
-                        const arr = json && json.record;
+                        // 过滤掉占位符（后台清空帖子时云端会留一个占位符，JSONBin 不允许空数组）
+                        const arr = (json && Array.isArray(json.record)) ? json.record.filter(p => p && !p._placeholder) : null;
                         if (Array.isArray(arr)) return { ok: true, data: arr };
                         return { ok: false };
                     } catch (e) {
@@ -336,15 +338,21 @@
             async function loadPosts() {
                 list.innerHTML = '<div class="empty-state"><div class="emoji">📝</div><p>正在加载帖子...</p></div>';
 
-                // 优先从后端拉（跨设备同步）
+                // 优先从云端拉（跨设备同步）
                 const apiRes = await API.list();
-                if (apiRes.ok && apiRes.data.length > 0) {
-                    localStorage.setItem(KEY, JSON.stringify(apiRes.data));
+                if (apiRes.ok) {
+                    if (apiRes.data.length > 0) {
+                        // 云端有帖子：以云端为准，同步到本地缓存
+                        localStorage.setItem(KEY, JSON.stringify(apiRes.data));
+                    } else {
+                        // 云端为空（被后台清空/删光）：本地缓存也同步清空，避免显示旧帖
+                        localStorage.removeItem(KEY);
+                    }
                     showPosts(apiRes.data);
                     return;
                 }
 
-                // 后端不可用或为空：本地 localStorage
+                // 云端不可用：退回本地 localStorage
                 let posts = [];
                 try { posts = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) {}
 
@@ -377,6 +385,9 @@
                 if (s === null || s === undefined) return '';
                 return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
             }
+
+            // 所有定义完成后才执行首次加载（此时 const API 已初始化）
+            loadPosts();
         });
     </script>
 </body>

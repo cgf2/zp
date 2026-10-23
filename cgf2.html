@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -215,12 +215,22 @@
         }
 
         @media (max-width: 600px) {
-            .detail-card { padding: 20px; }
-            .detail-header { flex-direction: column; align-items: center; text-align: center; }
-            .avatar-photo { width: 120px; height: 150px; font-size: 44px; }
-            .info-badges { justify-content: center; }
-            .info-item { flex-direction: column; }
-            .info-label { width: auto; margin-bottom: 2px; }
+            .detail-wrap { padding: 0 12px; margin: 16px auto 30px; }
+            .detail-card { padding: 18px 16px; }
+            /* 头像与名字信息保持同一行（像电脑端一样左右排列），仅缩小尺寸 */
+            .detail-header { flex-direction: row; gap: 16px; align-items: flex-start; margin-bottom: 20px; }
+            .avatar-photo { width: 92px; height: 120px; font-size: 34px; }
+            .info-area { min-width: 0; }
+            .info-area h2 { font-size: 24px; }
+            .info-badges { justify-content: flex-start; }
+            .badge { padding: 2px 10px; font-size: 11px; }
+            /* 信息行保持「标签在左、内容在右」同一行 */
+            .info-item { flex-direction: row; margin-bottom: 4px; font-size: 13px; line-height: 1.7; }
+            .info-label { width: 64px; margin-bottom: 0; }
+            .relation-section { margin-top: 18px; padding-top: 14px; }
+            .relation-title { font-size: 15px; flex-wrap: wrap; }
+            .relation-list a { padding: 4px 12px; font-size: 13px; }
+            .big-rank-link { margin-left: 6px; }
         }
     </style>
 </head>

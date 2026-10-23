@@ -187,15 +187,34 @@ body {
 
 /* ===== 响应式 ===== */
 @media (max-width: 768px) {
+    /* 手机导航保持一行：logo 左、菜单右，紧凑排列 */
     .nav-inner {
-        flex-direction: column;
+        flex-direction: row;
         height: auto;
-        padding: 14px 16px;
-        gap: 12px;
+        padding: 8px 10px;
+        gap: 6px;
+    }
+    .nav-logo {
+        font-size: 16px;
+        gap: 6px;
+        letter-spacing: 1px;
+        flex-shrink: 0;
+    }
+    .nav-logo::before {
+        width: 26px;
+        height: 26px;
+        font-size: 14px;
     }
     .nav-menu {
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: flex-end;
+        gap: 0;
+        margin-left: auto;
+    }
+    .nav-menu a {
+        font-size: 13px;
+        padding: 6px 7px;
+        white-space: nowrap;
     }
     .nav-menu a.active::after {
         display: none;

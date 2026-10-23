@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -89,6 +89,20 @@
             margin: 20px 0 10px;
             padding-left: 10px;
             border-left: 3px solid var(--color-gold);
+        }
+
+        @media (max-width: 600px) {
+            .rank-wrap { padding: 0 12px; margin: 16px auto 30px; }
+            .rank-card { padding: 20px 16px; }
+            .rank-card h2 { font-size: 20px; }
+            /* 辈分链允许自然折行，但保持紧凑美观 */
+            .rank-subtitle { font-size: 13px; line-height: 1.9; margin-bottom: 14px; word-break: break-all; }
+            .rank-item { padding: 10px 12px; margin-bottom: 6px; }
+            .rank-idx { width: 42px; height: 42px; font-size: 11px; }
+            .rank-info { margin-left: 12px; }
+            .rank-name { font-size: 15px; }
+            .rank-meta { font-size: 11px; }
+            .section-label { font-size: 13px; margin: 16px 0 8px; }
         }
     </style>
 </head>
